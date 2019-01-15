@@ -1,7 +1,7 @@
 #!/bin/sh
 ### kickout.sh #####
 
-signal=-85
+signal=-80
 maclist="mac1 mac2"
 
 function kick () {
@@ -12,8 +12,6 @@ ubus call hostapd.$dev del_client "{'addr':'$mac', 'reason':5, 'deauth':false, '
 }
 
 ### kickout.sh #####
-
-function kickthenall () {
 
 devlist=$(ifconfig | grep wlan | grep -v sta | awk '{ print $1 }')
 
@@ -39,11 +37,10 @@ done
 ####
 done
 ###
-}
 
-### kickout.sh #####
+sleep 8
 
-sleep 8; /bin/sh $0 &
+/bin/sh $0 &
 
 ###
 ##

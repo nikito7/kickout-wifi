@@ -8,7 +8,7 @@ function kick () {
 mac=$1
 dev=$2
 echo kicked $1 with $3 at $2 | logger
-ubus call hostapd.$dev del_client "{'addr':'$mac', 'reason':5, 'deauth':false, 'ban_time':0}"
+ubus call hostapd.$dev del_client "{'addr':'$mac', 'reason':5, 'deauth':true, 'ban_time':0}"
 }
 
 ### kickout.sh #####

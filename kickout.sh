@@ -1,8 +1,8 @@
 #!/bin/sh
 ### kickout.sh #####
 
-signal=-80
-maclist="mac1 mac2"
+signal=-75
+maclist="00:00:00:00:00:00 00:00:00:00:00:00 00:00:00:00:00:00"
 
 function kick () {
 mac=$1
@@ -16,32 +16,30 @@ del_client "{'addr':'$mac', \
 devlist=$(ifconfig | grep wlan | \
 grep -v sta | awk '{ print $1 }')
 
-###
+####
 for dev in $devlist
 do
-stalist=""
-stalist=$(iw $dev station dump | \
+stalist=""; stalist=$(iw $dev station dump | \
 grep Station | awk '{ print $2 }')
 ####
-for mac in $maclist
-do
-######
 for sta in $stalist
 do
-rssi=$(iw $dev station get $sta | \
-grep "signal avg" | awk '{ print $3 }')
-if [ $sta = $mac ] && [ $rssi -lt $signal ]
+echo "$maclist" | grep -q -e $sta
+if  [ $? -eq 0 ]
 then
-kick $mac $dev $rssi
+rssi=""; rssi=$(iw $dev station get $sta | \
+grep "signal avg" | awk '{ print $3 }')
+if [ $rssi -lt $signal ]
+then
+kick $sta $dev $rssi
 fi
-done
-######
-done
+fi
 ####
 done
-###
+done
+####
 
-sleep 8; /bin/sh $0 &
+# sleep 5; /bin/sh $0 &
 
 ###
 ##

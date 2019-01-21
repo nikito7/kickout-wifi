@@ -1,16 +1,19 @@
 #!/bin/sh
+
 ### kickout.sh #####
 
-signal=-75
-maclist="00:00:00:00:00:00 00:00:00:00:00:00 00:00:00:00:00:00"
+noise=-95
+snr=10
+
+maclist="00:00:00:00:00:00 00:00:00:00:00:00"
 
 function kick () {
 mac=$1
 dev=$2
-echo kicked $1 with $3 at $2 | logger
+echo kicked $1 with $3 snr: $4 at $2 | logger
 ubus call hostapd.$dev \
 del_client "{'addr':'$mac', \
-'reason':5, 'deauth':false, 'ban_time':0}"
+'reason':5, 'deauth':true, 'ban_time':0}"
 }
 
 devlist=$(ifconfig | grep wlan | \
@@ -29,9 +32,10 @@ if  [ $? -eq 0 ]
 then
 rssi=""; rssi=$(iw $dev station get $sta | \
 grep "signal avg" | awk '{ print $3 }')
-if [ $rssi -lt $signal ]
+result=$(( $rssi - $noise ))
+if [ $result -lt $snr ]
 then
-kick $sta $dev $rssi
+kick $sta $dev $rssi $result
 fi
 fi
 ####
@@ -39,7 +43,7 @@ done
 done
 ####
 
-# sleep 5; /bin/sh $0 &
+sleep 9; /bin/sh $0 &
 
 ###
 ##
